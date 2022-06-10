@@ -180,4 +180,4 @@ public Class() {
 #### Log-file:
 [Empty](https://github.com/D3rHase/jLogger#log-file) until `logger.savelog();` ist called.
 
-**BUT** the log is automatically saved when an error is added to the log.
+**OR** an error is added to the log.
