@@ -1,6 +1,6 @@
 
 
-# jLogger - v1.0
+# jLogger - v1.1
 [![](https://jitpack.io/v/D3rHase/jLogger.svg)](https://jitpack.io/#D3rHase/jLogger)  
 A lightweight easy-to-use java logging libary.
 
