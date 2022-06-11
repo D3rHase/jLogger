@@ -63,7 +63,7 @@ ERROR - 2022.06.11 - 21:13:54.5814142 - MODULE - text
 ```
 #### Log-file (logTitle_log-2022-06-11__21-13-54.61.txt):
 ```
----- LOG - TxtVLogger - Date: 2022-06-11__21-13-54.61 ----
+---- LOG - TXT-Logger - Date: 2022-06-11__21-13-54.61 ----
 
 OK - 2022.06.11 - 21:13:54.6124431 - MODULE - text  
 INFO - 2022.06.11 - 21:13:54.6124431 - MODULE - text  
