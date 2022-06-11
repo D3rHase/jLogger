@@ -1,28 +1,22 @@
 package de.d3rhase.jsonlogger;
 
 import de.d3rhase.constants.LogColors;
+import de.d3rhase.constants.LogTypes;
 import de.d3rhase.interfaces.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
-public class JsonLogger implements Logger {
-
-
-    private static final String DEFAULT_LOG_DIR = "logs";
-    private static final String DEFAULT_LOG_NAME = "TOPIC";
-    private static final boolean DEFAULT_DELETE_EXISTING_LOGS = false;
+public class JsonLogger extends Logger {
 
     private final JSONArray logQueue;
     private boolean writingToLogFile;
     private String path;
     private String logDir;
+    private String logTitle;
+    private String logCategory;
 
 
     public JsonLogger(String logTitle, boolean deleteExistingLogs) {
@@ -36,39 +30,19 @@ public class JsonLogger implements Logger {
     public JsonLogger(String logTitle, boolean deleteExistingLogs, String logDir) {
         this.logQueue = new JSONArray();
         this.writingToLogFile = false;
-        this.logDir = logDir;
+        this.logDir = validateDir(logDir);
+        this.logTitle = logTitle;
+        this.logCategory = "_log-";
 
-        String date = getDateTime();
-        date = date.substring(0,23);
+        String date = getDate();
 
-        path = (this.logDir + "/" + logTitle + "_log-" + date + ".json");
+        this.path = (this.logDir + logTitle + this.logCategory + date + ".json");
 
-        if (!Files.exists(Path.of(this.logDir))) {
-            try {
-                new File(this.logDir).mkdir();
-            } catch (SecurityException ignored) {
-            }
-        }
+        createLogDirectory(this.logDir);
 
-        if (deleteExistingLogs) {
-            File dir = new File(this.logDir);
-            try {
-                for (File file : Objects.requireNonNull(dir.listFiles())) {
-                    if (file.getName().contains(logTitle + "_log")) {
-                        file.delete();
-                    }
-                }
-            } catch (NullPointerException | SecurityException ignored) {
-            }
-        }
+        deleteExistingLogs(this.logDir, this.logTitle, this.logCategory, deleteExistingLogs);
 
-        JSONObject titleEntry = new JSONObject();
-        titleEntry.put("type", "JsonLOG");
-        titleEntry.put("title", logTitle);
-        titleEntry.put("date", date);
-        this.logQueue.put(titleEntry);
-        Thread writeThread = getWriteThread();
-        writeThread.start();
+        this.append(createJsonTitleEntry(logTitle, "JsonLOG", date));
 
         //this.testLogger(); // Test
     }
@@ -77,47 +51,30 @@ public class JsonLogger implements Logger {
         synchronized (this.logQueue) {
             this.logQueue.put(entry);
         }
-        Thread writeThread = getWriteThread();
-        if (!this.writingToLogFile) {
-            writeThread.start();
-        }
+        this.saveLog();
     }
 
     private Thread getWriteThread() {
         return new Thread(() -> {
-            this.writingToLogFile = true;
-            try {
-                synchronized (this.logQueue) {
-                    PrintWriter fileWriter = new PrintWriter(this.path);
-                    fileWriter.write(this.logQueue.toString(4));
-                    fileWriter.close();
+            if (!this.writingToLogFile) {
+                this.writingToLogFile = true;
+                try {
+                    synchronized (this.logQueue) {
+                        PrintWriter fileWriter = new PrintWriter(this.path);
+                        fileWriter.write(this.logQueue.toString(4));
+                        fileWriter.close();
+                    }
+                } catch (IOException ignored) {
                 }
-            } catch (IOException ignored) {
+                this.writingToLogFile = false;
             }
-            this.writingToLogFile = false;
         });
     }
 
-    private static String getDateTime() {
-        LocalDateTime time = LocalDateTime.now();
-        String rawTime = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        String[] splitTime = rawTime.split("T");
-        rawTime = (splitTime[0] + "__" + splitTime[1]);
-        splitTime = rawTime.split(":");
-        rawTime = (splitTime[0] + "-" + splitTime[1] + "-" + splitTime[2]);
-        return rawTime;
-    }
-
     public void ok(String module, String text, boolean printToConsole) {
-        JSONObject entry = new JSONObject();
-        entry.put("type","OK");
-        entry.put("time",getDateTime());
-        entry.put("module",module);
-        entry.put("text",text);
-        this.append(entry);
-        if (printToConsole) {
-            System.out.println(LogColors.OKGREEN + LogColors.BOLD + "OK" + LogColors.ENDC + " - " + getTxtEntry(module, text));
-        }
+        LocalDateTime dateTime = getDateTime();
+        this.append(createJsonEntry(module, text, LogTypes.OK, dateTime));
+        printConsoleEntry(createConsoleEntry(module, text, LogTypes.OK, dateTime), printToConsole);
     }
 
     public void ok(String module, String text) {
@@ -125,15 +82,9 @@ public class JsonLogger implements Logger {
     }
 
     public void info(String module, String text, boolean printToConsole) {
-        JSONObject entry = new JSONObject();
-        entry.put("type","INFO");
-        entry.put("time",getDateTime());
-        entry.put("module",module);
-        entry.put("text",text);
-        this.append(entry);
-        if (printToConsole) {
-            System.out.println(LogColors.INFO + LogColors.BOLD + "INFO" + LogColors.ENDC + " - " + getTxtEntry(module, text));
-        }
+        LocalDateTime dateTime = getDateTime();
+        this.append(createJsonEntry(module, text, LogTypes.INFO, dateTime));
+        printConsoleEntry(createConsoleEntry(module, text, LogTypes.INFO, dateTime), printToConsole);
     }
 
     public void info(String module, String text) {
@@ -141,15 +92,9 @@ public class JsonLogger implements Logger {
     }
 
     public void debug(String module, String text, boolean printToConsole) {
-        JSONObject entry = new JSONObject();
-        entry.put("type","DEBUG");
-        entry.put("time",getDateTime());
-        entry.put("module",module);
-        entry.put("text",text);
-        this.append(entry);
-        if (printToConsole) {
-            System.out.println(LogColors.OKCYAN + LogColors.BOLD + "DEBUG" + LogColors.ENDC + " - " + getTxtEntry(module, text));
-        }
+        LocalDateTime dateTime = getDateTime();
+        this.append(createJsonEntry(module, text, LogTypes.DEBUG, dateTime));
+        printConsoleEntry(createConsoleEntry(module, text, LogTypes.DEBUG, dateTime), printToConsole);
     }
 
     public void debug(String module, String text) {
@@ -157,15 +102,9 @@ public class JsonLogger implements Logger {
     }
 
     public void warning(String module, String text, boolean printToConsole) {
-        JSONObject entry = new JSONObject();
-        entry.put("type","WARNING");
-        entry.put("time",getDateTime());
-        entry.put("module",module);
-        entry.put("text",text);
-        this.append(entry);
-        if (printToConsole) {
-            System.out.println(LogColors.WARNING + LogColors.BOLD + "WARNING" + LogColors.ENDC + " - " + getTxtEntry(module, text));
-        }
+        LocalDateTime dateTime = getDateTime();
+        this.append(createJsonEntry(module, text, LogTypes.WARNING, dateTime));
+        printConsoleEntry(createConsoleEntry(module, text, LogTypes.WARNING, dateTime), printToConsole);
     }
 
     public void warning(String module, String text) {
@@ -173,15 +112,9 @@ public class JsonLogger implements Logger {
     }
 
     public void error(String module, String text, boolean printToConsole) {
-        JSONObject entry = new JSONObject();
-        entry.put("type","ERROR");
-        entry.put("time",getDateTime());
-        entry.put("module",module);
-        entry.put("text",text);
-        this.append(entry);
-        if (printToConsole) {
-            System.out.println(LogColors.FAIL + LogColors.BOLD + "ERROR" + LogColors.ENDC + LogColors.FAIL + " - " + getTxtEntry(module, text));
-        }
+        LocalDateTime dateTime = getDateTime();
+        this.append(createJsonEntry(module, text, LogTypes.ERROR, dateTime));
+        printConsoleEntry(createConsoleEntry(module, text, LogTypes.ERROR, dateTime), printToConsole);
     }
 
     public void error(String module, String text) {
@@ -190,11 +123,8 @@ public class JsonLogger implements Logger {
 
     @Override
     public void saveLog() {
-
-    }
-
-    private String getTxtEntry(String module, String text){
-        return (getDateTime() + " - " + module + " - " + text);
+        Thread writeThread = getWriteThread();
+        writeThread.start();
     }
 
     private void testLogger() {

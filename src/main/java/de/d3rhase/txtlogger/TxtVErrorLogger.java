@@ -1,6 +1,7 @@
 package de.d3rhase.txtlogger;
 
 import de.d3rhase.constants.LogColors;
+import de.d3rhase.constants.LogTypes;
 import de.d3rhase.interfaces.Logger;
 
 import java.io.File;
@@ -9,104 +10,102 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.Objects;
 
-public class TxtVErrorLogger implements Logger {
+public class TxtVErrorLogger extends Logger {
 
-    private static final String DEFAULT_LOG_DIR = "logs";
-    private static final String DEFAULT_LOG_NAME = "TOPIC";
-    private static final boolean DEFAULT_DELETE_EXISTING_LOGS = false;
-
-    private final LinkedList<String> log_queue;
-    private boolean writing_to_log_file;
+    private final LinkedList<String> logQueue;
+    private boolean writingToLogFile;
     private String path;
     private String logDir;
+    private String logTitle;
+    private String logCategory;
 
 
+    /**
+     * Creating a TxtVErrorLogger
+     * @param logTitle log title
+     * @param deleteExistingLogs delete existing logs with the same log title
+     */
     public TxtVErrorLogger(String logTitle, boolean deleteExistingLogs) {
         this(logTitle, deleteExistingLogs, DEFAULT_LOG_DIR);
     }
 
+    /**
+     * Creating a TxtVErrorLogger
+     * @param logTitle log title
+     */
     public TxtVErrorLogger(String logTitle) {
         this(logTitle, DEFAULT_DELETE_EXISTING_LOGS, DEFAULT_LOG_DIR);
     }
 
+    /**
+     * Creating a TxtVErrorLogger
+     * @param logTitle log title
+     * @param deleteExistingLogs delete existing logs with the same log title
+     * @param logDir directory where the log will be saved
+     */
     public TxtVErrorLogger(String logTitle, boolean deleteExistingLogs, String logDir) {
-        this.log_queue = new LinkedList<>();
-        this.writing_to_log_file = false;
-        this.logDir = logDir;
+        this.logQueue = new LinkedList<>();
+        this.writingToLogFile = false;
+        this.logDir = validateDir(logDir);
+        this.logTitle = logTitle;
+        this.logCategory = "_ERROR_log-";
 
-        String date = getDateTime();
-        date = date.substring(0,23);
+        String date = getDate();
 
-        path = (this.logDir + "/" + logTitle + "_ERROR_log-" + date + ".txt");
+        this.path = (this.logDir + logTitle + this.logCategory + date + ".txt");
 
-        if (!Files.exists(Path.of(this.logDir))) {
-            try {
-                new File(this.logDir).mkdir();
-            } catch (SecurityException ignored) {
-            }
-        }
+        createLogDirectory(this.logDir);
 
-        if (deleteExistingLogs) {
-            File dir = new File(this.logDir);
-            try {
-                for (File file : Objects.requireNonNull(dir.listFiles())) {
-                    if (file.getName().contains(logTitle + "_ERROR_log")) {
-                        file.delete();
-                    }
-                }
-            } catch (NullPointerException | SecurityException ignored) {
-            }
-        }
+        deleteExistingLogs(this.logDir, this.logTitle, this.logCategory, deleteExistingLogs);
 
-        this.log_queue.add(("---- ERROR-LOG - " + logTitle + " - Date: " + date + " ----\n\n\n"));
+        clearTxtFile(this.path);
+
+        this.append(createTxtTitleEntry(logTitle, "ERROR-LOG", date));
 
         //this.testLogger(); // Test
     }
 
+    /**
+     * Append an entry to the log-list
+     * @param entry The entry to be added
+     */
     private void append(String entry) {
-        synchronized (this.log_queue) {
-            this.log_queue.add(entry);
+        synchronized (this.logQueue) {
+            this.logQueue.add(entry);
         }
     }
 
+    /**
+     * Getting the write-thread
+     * @return write-thread
+     */
     private Thread getWriteThread() {
         return new Thread(() -> {
-            this.writing_to_log_file = true;
-            try {
-                synchronized (this.log_queue) {
-                    FileWriter fileWriter = new FileWriter(this.path, true);
-                    for (String entry : this.log_queue) {
-                        fileWriter.write(entry + "\n");
+            if (!this.writingToLogFile) {
+                this.writingToLogFile = true;
+                try {
+                    synchronized (this.logQueue) {
+                        FileWriter fileWriter = new FileWriter(this.path, true);
+                        for (String entry : this.logQueue) {
+                            fileWriter.write(entry + "\n");
+                        }
+                        fileWriter.close();
+                        this.logQueue.clear();
                     }
-                    fileWriter.close();
-                    this.log_queue.clear();
+                } catch (IOException ignored) {
                 }
-            } catch (IOException ignored) {
+                this.writingToLogFile = false;
             }
-            this.writing_to_log_file = false;
         });
     }
 
-    private static String getDateTime() {
-        LocalDateTime time = LocalDateTime.now();
-        String rawTime = time.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        String[] splitTime = rawTime.split("T");
-        rawTime = (splitTime[0] + "__" + splitTime[1]);
-        splitTime = rawTime.split(":");
-        rawTime = (splitTime[0] + "-" + splitTime[1] + "-" + splitTime[2]);
-        return rawTime;
-    }
-
     public void ok(String module, String text, boolean printToConsole) {
-        String entry = (getDateTime() + " - " + module + " - " + text);
-        this.append("OK - " + entry);
-        if (printToConsole) {
-            System.out.println(LogColors.OKGREEN + LogColors.BOLD + "OK" + LogColors.ENDC + " - " + entry);
-        }
+        LocalDateTime dateTime = getDateTime();
+        this.append(createTxtEntry(module, text, LogTypes.OK, dateTime));
+        printConsoleEntry(createConsoleEntry(module, text, LogTypes.OK, dateTime), printToConsole);
     }
 
     public void ok(String module, String text) {
@@ -114,11 +113,9 @@ public class TxtVErrorLogger implements Logger {
     }
 
     public void info(String module, String text, boolean printToConsole) {
-        String entry = (getDateTime() + " - " + module + " - " + text);
-        this.append("INFO - " + entry);
-        if (printToConsole) {
-            System.out.println(LogColors.INFO + LogColors.BOLD + "INFO" + LogColors.ENDC + " - " + entry);
-        }
+        LocalDateTime dateTime = getDateTime();
+        this.append(createTxtEntry(module, text, LogTypes.INFO, dateTime));
+        printConsoleEntry(createConsoleEntry(module, text, LogTypes.INFO, dateTime), printToConsole);
     }
 
     public void info(String module, String text) {
@@ -126,11 +123,9 @@ public class TxtVErrorLogger implements Logger {
     }
 
     public void debug(String module, String text, boolean printToConsole) {
-        String entry = (getDateTime() + " - " + module + " - " + text);
-        this.append("DEBUG - " + entry);
-        if (printToConsole) {
-            System.out.println(LogColors.OKCYAN + LogColors.BOLD + "DEBUG" + LogColors.ENDC + " - " + entry);
-        }
+        LocalDateTime dateTime = getDateTime();
+        this.append(createTxtEntry(module, text, LogTypes.DEBUG, dateTime));
+        printConsoleEntry(createConsoleEntry(module, text, LogTypes.DEBUG, dateTime), printToConsole);
     }
 
     public void debug(String module, String text) {
@@ -138,11 +133,9 @@ public class TxtVErrorLogger implements Logger {
     }
 
     public void warning(String module, String text, boolean printToConsole) {
-        String entry = (getDateTime() + " - " + module + " - " + text);
-        this.append("WARNING - " + entry);
-        if (printToConsole) {
-            System.out.println(LogColors.WARNING + LogColors.BOLD + "WARNING" + LogColors.ENDC + " - " + entry);
-        }
+        LocalDateTime dateTime = getDateTime();
+        this.append(createTxtEntry(module, text, LogTypes.WARNING, dateTime));
+        printConsoleEntry(createConsoleEntry(module, text, LogTypes.WARNING, dateTime), printToConsole);
     }
 
     public void warning(String module, String text) {
@@ -150,13 +143,9 @@ public class TxtVErrorLogger implements Logger {
     }
 
     public void error(String module, String text, boolean printToConsole) {
-        String entry = (getDateTime() + " - " + module + " - " + text);
-        this.append("ERROR - " + entry);
-        Thread writeThread = getWriteThread();
-        writeThread.start();
-        if (printToConsole) {
-            System.out.println(LogColors.FAIL + LogColors.BOLD + "ERROR" + LogColors.ENDC + LogColors.FAIL + " - " + entry);
-        }
+        LocalDateTime dateTime = getDateTime();
+        this.append(createTxtEntry(module, text, LogTypes.ERROR, dateTime));
+        printConsoleEntry(createConsoleEntry(module, text, LogTypes.ERROR, dateTime), printToConsole);
     }
 
     public void error(String module, String text) {
