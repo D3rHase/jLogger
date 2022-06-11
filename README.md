@@ -63,7 +63,7 @@ ERROR - 2022.06.11 - 21:13:54.5814142 - MODULE - text
 ```
 #### Log-file (logTitle_log-2022-06-11__21-13-54.61.txt):
 ```
----- LOG - TXT-Logger - Date: 2022-06-11__21-13-54.61 ----
+---- LOG - logTitle - Date: 2022-06-11__21-13-54.61 ----
 
 OK - 2022.06.11 - 21:13:54.6124431 - MODULE - text  
 INFO - 2022.06.11 - 21:13:54.6124431 - MODULE - text  
@@ -93,13 +93,13 @@ DEBUG - 2022.06.11 - 21:18:44.793586 - MODULE - text
 WARNING - 2022.06.11 - 21:18:44.793586 - MODULE - text
 ERROR - 2022.06.11 - 21:18:44.793586 - MODULE - text
 ```
-#### Log-file (logTitle_log-2022-06-10__23-00-12.74.json):
+#### Log-file (logTitle_log-2022-06-11__21-18-44.66.json):
 ```json
 [  
   {  
       "date": "2022-06-11__21-18-44.66",  
       "category": "JsonLOG",  
-      "title": "JsonLogger"  
+      "title": "logTitle"  
   },  
   {  
       "module": "MODULE",  
