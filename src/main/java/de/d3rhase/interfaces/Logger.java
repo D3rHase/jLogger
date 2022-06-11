@@ -195,7 +195,7 @@ public abstract class Logger {
     }
 
     protected static String createTxtTitleEntry(String logTitle, String logCategory, String date){
-        return ("---- " + logCategory + " - " + logTitle + " - Date: " + date + " ----\n\n\n");
+        return ("---- " + logCategory + " - " + logTitle + " - Date: " + date + " ----\n");
     }
 
     protected static JSONObject createJsonTitleEntry(String logTitle, String logCategory, String date){
