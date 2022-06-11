@@ -6,7 +6,7 @@
 
     <groupId>de.d3rhase</groupId>
     <artifactId>jlogger</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
