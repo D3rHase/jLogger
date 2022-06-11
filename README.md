@@ -1,4 +1,5 @@
 
+
 # jLogger - v1.0
 [![](https://jitpack.io/v/D3rHase/jLogger.svg)](https://jitpack.io/#D3rHase/jLogger)  
 A lightweight easy-to-use java logging libary.
@@ -17,7 +18,7 @@ A lightweight easy-to-use java logging libary.
 <dependency>
   <groupId>com.github.D3rHase</groupId>
   <artifactId>jLogger</artifactId>
-  <version>version</version>
+  <version>1.1</version>
 </dependency>
 ```
 **2. Step**: Enjoy your new logger:
@@ -54,22 +55,21 @@ public Class() {
 
 #### Terminal:
 ```
-OK - 2022-06-10__22-48-26.3956393 - MODULE - text
-INFO - 2022-06-10__22-48-26.3996432 - MODULE - text
-DEBUG - 2022-06-10__22-48-26.4006454 - MODULE - text
-WARNING - 2022-06-10__22-48-26.4016452 - MODULE - text
-ERROR - 2022-06-10__22-48-26.4026457 - MODULE - text
+OK - 2022.06.11 - 21:13:54.5643998 - MODULE - text
+INFO - 2022.06.11 - 21:13:54.5794125 - MODULE - text
+DEBUG - 2022.06.11 - 21:13:54.5804134 - MODULE - text
+WARNING - 2022.06.11 - 21:13:54.5814142 - MODULE - text
+ERROR - 2022.06.11 - 21:13:54.5814142 - MODULE - text
 ```
-#### Log-file (logTitle_log-2022-06-10__22-48-26.33.txt):
+#### Log-file (logTitle_log-2022-06-11__21-13-54.61.txt):
 ```
----- LOG - logTitle - Date: 2022-06-10__22-48-26.33 ----  
+---- LOG - TxtVLogger - Date: 2022-06-11__21-13-54.61 ----
 
-
-OK - 2022-06-10__22-48-26.3956393 - MODULE - text
-INFO - 2022-06-10__22-48-26.3996432 - MODULE - text
-DEBUG - 2022-06-10__22-48-26.4006454 - MODULE - text
-WARNING - 2022-06-10__22-48-26.4016452 - MODULE - text
-ERROR - 2022-06-10__22-48-26.4026457 - MODULE - text
+OK - 2022.06.11 - 21:13:54.6124431 - MODULE - text  
+INFO - 2022.06.11 - 21:13:54.6124431 - MODULE - text  
+DEBUG - 2022.06.11 - 21:13:54.6134432 - MODULE - text  
+WARNING - 2022.06.11 - 21:13:54.6134432 - MODULE - text  
+ERROR - 2022.06.11 - 21:13:54.6134432 - MODULE - text
 ```
 
 ### 2. Json-Logger:
@@ -87,47 +87,47 @@ public Class() {
 
 #### Terminal:
 ```
-OK - 2022-06-10__23-00-12.8032834 - MODULE - text
-INFO - 2022-06-10__23-00-12.8072867 - MODULE - text
-DEBUG - 2022-06-10__23-00-12.8082885 - MODULE - text
-WARNING - 2022-06-10__23-00-12.8082885 - MODULE - text
-ERROR - 2022-06-10__23-00-12.8092887 - MODULE - text
+OK - 2022.06.11 - 21:18:44.793586 - MODULE - text
+INFO - 2022.06.11 - 21:18:44.793586 - MODULE - text
+DEBUG - 2022.06.11 - 21:18:44.793586 - MODULE - text
+WARNING - 2022.06.11 - 21:18:44.793586 - MODULE - text
+ERROR - 2022.06.11 - 21:18:44.793586 - MODULE - text
 ```
 #### Log-file (logTitle_log-2022-06-10__23-00-12.74.json):
 ```json
 [  
   {  
-      "date": "2022-06-10__23-00-12.74",  
-      "type": "JsonLOG",  
-      "title": "logTitle"  
+      "date": "2022-06-11__21-18-44.66",  
+      "category": "JsonLOG",  
+      "title": "JsonLogger"  
   },  
   {  
       "module": "MODULE",  
-      "time": "2022-06-10__23-00-12.8032834",  
+      "time": "2022-06-11__21-18-44.7405379",  
       "text": "text",  
       "type": "OK"  
   },  
   {  
       "module": "MODULE",  
-      "time": "2022-06-10__23-00-12.806286",  
+      "time": "2022-06-11__21-18-44.7575533",  
       "text": "text",  
       "type": "INFO"  
   },  
   {  
       "module": "MODULE",  
-      "time": "2022-06-10__23-00-12.8072867",  
+      "time": "2022-06-11__21-18-44.7575533",  
       "text": "text",  
       "type": "DEBUG"  
   },  
   {  
       "module": "MODULE",  
-      "time": "2022-06-10__23-00-12.8082885",  
+      "time": "2022-06-11__21-18-44.7585559",  
       "text": "text",  
       "type": "WARNING"  
   },  
   {  
       "module": "MODULE",  
-      "time": "2022-06-10__23-00-12.8092887",  
+      "time": "2022-06-11__21-18-44.7595561",  
       "text": "text",  
       "type": "ERROR"  
   }  
