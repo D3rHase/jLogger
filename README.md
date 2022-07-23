@@ -40,7 +40,7 @@ public class Class {
 
 ## Examples
 
-### 1. TXT-Logger:
+### 1. TXT-Logger
 ```java
 public Class() {
 	this.logger = new TxtLogger(<String:logTitle>, <boolean:deleteExistingLogs|default:true>, <String:logDir|default:"logs">);
@@ -72,7 +72,7 @@ WARNING - 2022.06.11 - 21:13:54.6134432 - MODULE - text
 ERROR - 2022.06.11 - 21:13:54.6134432 - MODULE - text
 ```
 
-### 2. Json-Logger:
+### 2. Json-Logger
 ```java
 public Class() {
 	this.logger = new TxtLogger(<String:logTitle>, <boolean:deleteExistingLogs|default:true>, <String:logDir|default:"logs">);
@@ -134,7 +134,7 @@ ERROR - 2022.06.11 - 21:18:44.793586 - MODULE - text
 ]
 ```
 
-### 3. TxtVLogger / JsonVLogger:
+### 3. TxtVLogger / JsonVLogger
 ```java
 public Class() {
 	this.logger = new TxtVLogger(<String:logTitle>, <boolean:deleteExistingLogs|default:true>, <String:logDir|default:"logs">);
@@ -157,7 +157,7 @@ public Class() {
 #### Log-file:
 Empty until `logger.savelog();` ist called.
 
-### 4. TxtVErrorLogger / JsonVErrorLogger:
+### 4. TxtVErrorLogger / JsonVErrorLogger
 ```java
 public Class() {
 	this.logger = new TxtVErrorLogger(<String:logTitle>, <boolean:deleteExistingLogs|default:true>, <String:logDir|default:"logs">);
